@@ -144,3 +144,5 @@ class RbmSpin : public AbstractMachine {
 }  // namespace netket
 
 #endif
+// some comments
+// some additional comment
