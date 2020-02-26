@@ -280,3 +280,5 @@ void RbmSpin::Load(const std::string &filename) {
 bool RbmSpin::IsHolomorphic() const noexcept { return true; }
 
 }  // namespace netket
+
+// some comment
