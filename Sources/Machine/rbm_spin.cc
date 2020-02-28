@@ -24,17 +24,37 @@ RbmSpin::RbmSpin(std::shared_ptr<const AbstractHilbert> hilbert, int nhidden,
     : AbstractMachine(hilbert), nv_(hilbert->Size()), usea_(usea), useb_(useb) {
   nh_ = std::max(nhidden, alpha * nv_);
   Init();
+  /* TTComment: Initialization of the instance of RbmSpin class (defined in 
+   * header) Variables are:
+   * hilbert - the variable containing information about physical system
+   * nhidden - number of neurons in hidden layer defined by larger of the values
+   *           (alpha * number of neuron from visible layer) or nhidden
+   * alpha - density defined as (number of neurons in hidden layer / number of
+   *         neurons in visible layer)
+   * usea - if true use biases in visible layer a*output
+   * useb - if true use biases in hidden layer b*output
+   */
 }
 
+/* TTComment: Member function returning number of visible neurons (inherited from
+ * AbstractMachine)
+ */
 int RbmSpin::Nvisible() const { return nv_; }
 
+/* TTComment: Member function returning number of parameters (inherited from
+ * AbstractMachine)
+ */ 
 int RbmSpin::Npar() const { return npar_; }
 
+// TTComment: Initialization function
 void RbmSpin::Init() {
+  /* TTComment: Defining variational parameters: weights and biases (a_ for 
+   * visible layer, b_ for hidden layer)
+   */
   W_.resize(nv_, nh_);
   a_.resize(nv_);
   b_.resize(nh_);
-
+  
   thetas_.resize(nh_);
   lnthetas_.resize(nh_);
   thetasnew_.resize(nh_);
