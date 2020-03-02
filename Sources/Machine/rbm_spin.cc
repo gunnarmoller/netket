@@ -54,12 +54,24 @@ void RbmSpin::Init() {
   W_.resize(nv_, nh_);
   a_.resize(nv_);
   b_.resize(nh_);
-  
+  /* TTComment: thetas_ correspond to the "output" of a hidden layer 
+   * thetas = W_.transpose() * visible + b_. It is used as the input of cosh
+   * functions in the expression for a wavefunction. lnthetas_ correspond to 
+   * the ln(cosh(thetas)) which is done by taking the ln of a wavefunction
+   * (function defined in header)
+   */ 
   thetas_.resize(nh_);
   lnthetas_.resize(nh_);
+  /* TTComment: holders for the new thetas and lnthetas values after one or more
+   * of the visible units are flipped
+   */
   thetasnew_.resize(nh_);
   lnthetasnew_.resize(nh_);
 
+  /* TTComment: npar_ corresponds to number of variational parameters which, if
+   * there are no biases is given by nv_ * nh_ and if there are biases is larger
+   * by nv_ and/or nh_.
+   */ 
   npar_ = nv_ * nh_;
 
   if (usea_) {
@@ -73,6 +85,8 @@ void RbmSpin::Init() {
   } else {
     b_.setZero();
   }
+  
+  // TTComment: Log messages
 
   InfoMessage() << "RBM Initizialized with nvisible = " << nv_
                 << " and nhidden = " << nh_ << std::endl;
@@ -80,6 +94,11 @@ void RbmSpin::Init() {
   InfoMessage() << "Using hidden bias  = " << useb_ << std::endl;
 }
 
+/* TTComment: Function initializing the parameters of the neural network from
+ * random Gaussian distribution (taken from netket library). par variable is used
+ * to initialize the values of W_, a_ and b_ by the function SetParameters defined
+ * below
+ */
 void RbmSpin::InitRandomPars(int seed, double sigma) {
   VectorType par(npar_);
 
@@ -88,32 +107,60 @@ void RbmSpin::InitRandomPars(int seed, double sigma) {
   SetParameters(par);
 }
 
+/* TTComment: Function which initializes a look-up table which can be used to 
+ * speed up calculation. It is equal to thetas_ variable - W_.transpose() * v + b_
+ * (More information in the abstract_machine.hpp)
+ */ 
+
 void RbmSpin::InitLookup(VisibleConstType v, LookupType &lt) {
+  /* TTComment: If look-up table (lt) does not have any vectors then create vector
+   * of size nh_
+   */ 
   if (lt.VectorSize() == 0) {
     lt.AddVector(b_.size());
   }
+  // TTComment: If look-up table already have a vector V(0), resize it to nh_
   if (lt.V(0).size() != b_.size()) {
     lt.V(0).resize(b_.size());
   }
-
+  
+  // TTComment: Definition of look-up table
   lt.V(0) = (W_.transpose() * v + b_);
 }
+
+/* TTComment: Function updating the look-up table where only certain neurons from
+ * visible layers have changed. The neurons that changed are specified by &tochange
+ * variable and how they changed are represented by &newconf.
+ */ 
 
 void RbmSpin::UpdateLookup(VisibleConstType v, const std::vector<int> &tochange,
                            const std::vector<double> &newconf, LookupType &lt) {
   if (tochange.size() != 0) {
     for (std::size_t s = 0; s < tochange.size(); s++) {
+      // TTComment: index of changed spin
       const int sf = tochange[s];
+      /* TTComment: adding a value of changed spin to look-up table and removing
+       * old value
+       */
       lt.V(0) += W_.row(sf) * (newconf[s] - v(sf));
     }
   }
 }
+
+/* TTComment: Function that calculates the derivatives of logarithms of a 
+ * wavefunction. It is made more efficient by evaluating first the look-up tables.
+ */
 
 RbmSpin::VectorType RbmSpin::DerLog(VisibleConstType v) {
   LookupType ltnew;
   InitLookup(v, ltnew);
   return DerLog(v, ltnew);
 }
+
+/* TTComment: Function that calculates the derivatives of logarithms of a 
+ * wavefunction. Modified version of the code above which uses a look-up table
+ * (in this instance both functions are exactly the same)
+ */
 
 RbmSpin::VectorType RbmSpin::DerLog(VisibleConstType v, const LookupType &lt) {
   VectorType der(npar_);
@@ -134,6 +181,8 @@ RbmSpin::VectorType RbmSpin::DerLog(VisibleConstType v, const LookupType &lt) {
   return der;
 }
 
+// TTComment: Function that returns parameters stored in W_, a_, b_
+
 RbmSpin::VectorType RbmSpin::GetParameters() {
   VectorType pars(npar_);
 
@@ -149,6 +198,8 @@ RbmSpin::VectorType RbmSpin::GetParameters() {
 
   return pars;
 }
+
+// TTComment: Function that set the parameters pars to the variables W_, a_, b_
 
 void RbmSpin::SetParameters(VectorConstRefType pars) {
   if (usea_) {
