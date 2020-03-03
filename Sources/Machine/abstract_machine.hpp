@@ -35,6 +35,8 @@ namespace netket {
 */
 class AbstractMachine {
  public:
+  // TTComment: The types defined below are synonymous to the types
+  // on right side of assignment
   using VectorType = Eigen::Matrix<Complex, Eigen::Dynamic, 1>;
   using MatrixType = Eigen::Matrix<Complex, Eigen::Dynamic, Eigen::Dynamic>;
   using LookupType = Lookup<Complex>;
