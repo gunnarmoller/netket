@@ -163,18 +163,30 @@ RbmSpin::VectorType RbmSpin::DerLog(VisibleConstType v) {
  */
 
 RbmSpin::VectorType RbmSpin::DerLog(VisibleConstType v, const LookupType &lt) {
+  /* TTComment: VectorType is equivalent to Eigen::Matrix<Complex, Eigen::Dynamic, 1>.
+   * der is a vector containing all the derivatives of variational parameters. 
+   * der.head correspond to the beginning of the vector, der.segment to the middle
+   * and der.tail to the end of the vector
+   */
   VectorType der(npar_);
-
+  
+  /* TTComment: derivative of log(wavefunction) with respect to a_ biases is given 
+   * by values of visible layers
+   */
   if (usea_) {
     der.head(nv_) = v;
   }
-
+  /* TTComment: derivative of log(wavefunction) with respect to b_ biases is given
+   * by tanh(thetas_)
+   */
   RbmSpin::tanh(lt.V(0), lnthetas_);
 
   if (useb_) {
     der.segment(usea_ * nv_, nh_) = lnthetas_;
   }
-
+  /* TTComment: derivative of log(wavefunction) with respect to W_ weights is given
+   * by v * tanh(thetas)
+   */ 
   MatrixType wder = (v * lnthetas_.transpose());
   der.tail(nv_ * nh_) = Eigen::Map<VectorType>(wder.data(), nv_ * nh_);
 
@@ -235,26 +247,43 @@ Complex RbmSpin::LogVal(VisibleConstType v, const LookupType &lt) {
 RbmSpin::VectorType RbmSpin::LogValDiff(
     VisibleConstType v, const std::vector<std::vector<int>> &tochange,
     const std::vector<std::vector<double>> &newconf) {
+  // TTComment: nconn - number of spin flips  
   const std::size_t nconn = tochange.size();
+  /* TTComment: logvaldiffs - stores the difference of logarithms of wavefunctions
+   * after and before the flips
+   */
   VectorType logvaldiffs = VectorType::Zero(nconn);
 
   thetas_ = (W_.transpose() * v + b_);
   RbmSpin::lncosh(thetas_, lnthetas_);
-
+  
+  // TTComment: logtsum contains the sum of logarithms before spin flips
   Complex logtsum = lnthetas_.sum();
-
+  
+  /* TTComment: assigning the values of a logvaldiffs. &tochange is a list of 
+   * multiple possible changes to a given configuration. tochange[k] represents
+   * one of those possible changes
+   */
   for (std::size_t k = 0; k < nconn; k++) {
     if (tochange[k].size() != 0) {
       thetasnew_ = thetas_;
 
       for (std::size_t s = 0; s < tochange[k].size(); s++) {
+        /* TTComment: sf is an index of the spin that is currently flipped.
+         * newconf[k][s] is a new value for this spin
+         */ 
         const int sf = tochange[k][s];
-
+        
+        /* TTComment: this contribution to logvaldiffs(k) comes from the exp(a_ * v)
+         * part of the wavefuntion
+         */
         logvaldiffs(k) += a_(sf) * (newconf[k][s] - v(sf));
 
         thetasnew_ += W_.row(sf) * (newconf[k][s] - v(sf));
       }
-
+      /* TTComment: this contribution to logvaldiffs(k) comes from the cosh(thetas)
+       * part of the wavefunction
+       */
       RbmSpin::lncosh(thetasnew_, lnthetasnew_);
       logvaldiffs(k) += lnthetasnew_.sum() - logtsum;
     }
@@ -265,6 +294,8 @@ RbmSpin::VectorType RbmSpin::LogValDiff(
 // Difference between logarithms of values, when one or more visible variables
 // are being flipped Version using pre-computed look-up tables for efficiency
 // on a small number of spin flips
+
+// TTComment: Same as above but with look-up tables
 Complex RbmSpin::LogValDiff(VisibleConstType v,
                             const std::vector<int> &tochange,
                             const std::vector<double> &newconf,
@@ -290,6 +321,8 @@ Complex RbmSpin::LogValDiff(VisibleConstType v,
   return logvaldiff;
 }
 
+// TTComment: saving the parameters of the machine
+
 void RbmSpin::Save(const std::string &filename) const {
   json state;
   state["Name"] = "RbmSpin";
@@ -302,6 +335,8 @@ void RbmSpin::Save(const std::string &filename) const {
   state["W"] = W_;
   WriteJsonToFile(state, filename);
 }
+
+// TTComment: loading the parameters of the machine
 
 void RbmSpin::Load(const std::string &filename) {
   auto const pars = ReadJsonFromFile(filename);
