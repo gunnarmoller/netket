@@ -111,7 +111,6 @@ void RbmSpin::InitRandomPars(int seed, double sigma) {
   * speed up calculation. It is equal to thetas_ variable - W_.transpose() * v + b_
   * (More information in the abstract_machine.hpp)
   */ 
-
 void RbmSpin::InitLookup(VisibleConstType v, LookupType &lt) {
   /** TTComment: If look-up table (lt) does not have any vectors then create vector
     * of size nh_
@@ -132,7 +131,6 @@ void RbmSpin::InitLookup(VisibleConstType v, LookupType &lt) {
   * visible layers have changed. The neurons that changed are specified by &tochange
   * variable and how they changed are represented by &newconf.
   */ 
-
 void RbmSpin::UpdateLookup(VisibleConstType v, const std::vector<int> &tochange,
                            const std::vector<double> &newconf, LookupType &lt) {
   if (tochange.size() != 0) {

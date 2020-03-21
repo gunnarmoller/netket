@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef NETKET_RBM_SPIN_HPP
-#define NETKET_RBM_SPIN_HPP
+#ifndef NETKET_RBM_DENSITY_MATRIX_HPP
+#define NETKET_RBM_DENSITY_MATRIX_HPP
 
 #include <cmath>
 
@@ -24,18 +24,24 @@ namespace netket {
 /** Restricted Boltzmann machine class with spin 1/2 hidden units.
  *
  */
-class RbmSpin : public AbstractMachine {
+class RbmDensityMatrix : public AbstractMachine {
   // number of visible units
   int nv_;
 
   // number of hidden units
   int nh_;
 
+  // number of auxilary units
+  int na_;
+
   // number of parameters
   int npar_;
 
-  // weights
+  // weights between visible and hidden units
   MatrixType W_;
+
+  // weights between visible and auxilary units
+  MatrixType U_;
 
   // visible units bias
   VectorType a_;
@@ -43,21 +49,29 @@ class RbmSpin : public AbstractMachine {
   // hidden units bias
   VectorType b_;
 
-  VectorType thetas_;
-  VectorType lnthetas_;
-  VectorType thetasnew_;
-  VectorType lnthetasnew_;
+  // auxilary units bias
+  VectorType c_;
+
+  VectorType gammaplus_;
+  VectorType gammaminus_;
+  VectorType pimatrix_;
+  VectorType newgammaplus_;
+  VectorType newgammaminus_;
+  VectorType newpimatrix_;
 
   bool usea_;
   bool useb_;
+  bool usec_;
 
  public:
   RbmSpin(std::shared_ptr<const AbstractHilbert> hilbert, int nhidden = 0,
-          int alpha = 0, bool usea = true, bool useb = true);
+          int alpha = 0, int beta = 0, 
+          bool usea = true, bool useb = true, bool usec = true);
 
   int Nvisible() const override;
   int Npar() const override;
   /*constexpr*/ int Nhidden() const noexcept { return nh_; }
+  /*constexpr*/ int Nauxillary() const noexcept { return na_;}
 
   void InitRandomPars(int seed, double sigma) override;
   void InitLookup(VisibleConstType v, LookupType &lt) override;
