@@ -64,7 +64,7 @@ class RbmDensityMatrix : public AbstractMachine {
   bool usec_;
 
  public:
-  RbmSpin(std::shared_ptr<const AbstractHilbert> hilbert, int nhidden = 0,
+  RbmDensityMatrix(std::shared_ptr<const AbstractHilbert> hilbert, int nhidden = 0,
           int alpha = 0, int beta = 0, 
           bool usea = true, bool useb = true, bool usec = true);
 

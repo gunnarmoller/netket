@@ -43,27 +43,45 @@ namespace netket {
 // 1) Stochastic reconfiguration optimizer
 //   both direct and sparse version
 // 2) Gradient Descent optimizer
+    
+/** TTComment: This class provides a central point to all of the 
+ *  calculations.
+ */ 
 class VariationalMonteCarlo {
+  /// TTComment: @ref reference to hamiltonian operator
   const AbstractOperator &ham_;
+  /// TTComment: @ref reference to sampler
   AbstractSampler &sampler_;
+  /// TTComment: @ref reference to machine
   AbstractMachine &psi_;
 
 
   int totalnodes_;
   int mynode_;
 
+  /// TTComment: @ref reference to optimizer
   AbstractOptimizer &opt_;
+  /** TTComment: @param dosr_ chooses between stochastic reconfiguration
+   *  and gradient descent
+   */
   SR sr_;
   bool dosr_;
-
+  
+  /** TTComment: @param obs_ is a vector holding any number of operators
+   *  for which we want to know the expectation value
+   */
   std::vector<const AbstractOperator *> obs_;
   std::vector<std::string> obsnames_;
 
   using StatsMap = std::unordered_map<std::string, vmc::Stats>;
   StatsMap observable_stats_;
-
+    
+  /// TTComment: @param vmc_data_ - stores the vmc samples
   vmc::Result vmc_data_;
   Eigen::VectorXcd locvals_;
+  /** TTComment: @param grad_ - stores the gradients of variational
+   *  parameters.
+   */ 
   Eigen::VectorXcd grad_;
 
   int nsamples_;
@@ -72,7 +90,10 @@ class VariationalMonteCarlo {
   int ndiscard_;
 
   int npar_;
-
+    
+  /** TTComment: @param target_ holds the information about the 
+   *  cost function.
+   */
   std::string target_;
 
  public:
