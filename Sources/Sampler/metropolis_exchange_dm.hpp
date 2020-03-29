@@ -20,12 +20,12 @@
 #include <iostream>
 #include "Utils/parallel_utils.hpp"
 #include "Utils/random_utils.hpp"
-#include "abstract_sampler.hpp"
+#include "abstract_sampler_dm.hpp"
 
 namespace netket {
 
 // Metropolis sampling generating local exchanges
-class MetropolisExchangeDM : public AbstractSampler {
+class MetropolisExchangeDM : public AbstractSamplerDM {
   // number of visible units
   const int nv_;
 
@@ -49,7 +49,7 @@ class MetropolisExchangeDM : public AbstractSampler {
  public:
   MetropolisExchangeDM(const AbstractGraph &graph, AbstractDensityMatrix &psi,
                      int dmax = 1)
-      : AbstractSampler(psi), nv_(GetHilbert().Size()) {
+      : AbstractSamplerDM(psi), nv_(GetHilbert().Size()) {
     Init(graph, dmax);
   }
 

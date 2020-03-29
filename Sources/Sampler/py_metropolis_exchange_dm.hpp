@@ -23,7 +23,7 @@ namespace py = pybind11;
 namespace netket {
 
 void AddMetropolisExchangeDM(py::module &subm) {
-  py::class_<MetropolisExchangeDM, AbstractSampler>(subm, "MetropolisExchangeDM",
+  py::class_<MetropolisExchangeDM, AbstractSamplerDM>(subm, "MetropolisExchangeDM",
                                                   R"EOF(
     This sampler acts locally only on two local degree of freedom $$ s_i $$ and $$ s_j $$,
     and proposes a new state: $$ s_1 \dots s^\prime_i \dots s^\prime_j \dots s_N $$,
