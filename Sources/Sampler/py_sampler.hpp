@@ -39,6 +39,7 @@
 #include "py_metropolis_hop.hpp"
 #include "py_metropolis_local.hpp"
 #include "py_metropolis_local_pt.hpp"
+#include "py_metropolis_exchange_dm.hpp"
 
 namespace py = pybind11;
 
@@ -110,6 +111,7 @@ void AddSamplerModule(py::module &m) {
   AddMetropolisHamiltonian(subm);
   AddMetropolisHamiltonianPt(subm);
   AddMetropolisExchange(subm);
+  AddMetropolisExchangeDM(subm);
   AddMetropolisExchangePt(subm);
   AddExactSampler(subm);
   AddCustomSampler(subm);
