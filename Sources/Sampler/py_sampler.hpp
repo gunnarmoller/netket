@@ -29,6 +29,7 @@
 #include "Utils/memory_utils.hpp"
 #include "Utils/parallel_utils.hpp"
 #include "abstract_sampler.hpp"
+#include "abstract_sampler_dm.hpp"
 #include "py_custom_sampler.hpp"
 #include "py_custom_sampler_pt.hpp"
 #include "py_exact_sampler.hpp"
@@ -39,6 +40,7 @@
 #include "py_metropolis_hop.hpp"
 #include "py_metropolis_local.hpp"
 #include "py_metropolis_local_pt.hpp"
+#include "py_metropolis_exchange_dm.hpp"
 
 namespace py = pybind11;
 
@@ -103,6 +105,63 @@ void AddSamplerModule(py::module &m) {
                           function(complex): The function to be used for sampling.
                                        by default $$|\Psi(x)|^2$$ is sampled,
                                        however in general $$F(\Psi(v))$$  )EOF");
+      
+  py::class_<AbstractSamplerDM>(subm, "SamplerDM", R"EOF(
+    NetKet implements generic sampling routines to be used in conjunction with
+    suitable variational states, the `Machines`.
+    A `Sampler` generates quantum numbers distributed according to:
+
+    $$P(s_1\dots s_N) = F(\Psi(s_1\dots s_N)),$$
+
+    where F is an arbitrary function. By default F(X)=|X|^2.
+
+    The samplers typically transit from the current set of quantum numbers
+    $$\mathbf{s} = s_1 \dots s_N$$ to another set
+    $$\mathbf{s^\prime} = s^\prime_1 \dots s^\prime_N$$.
+    Samplers are then fully specified by the transition probability:
+
+    $$T( \mathbf{s} \rightarrow \mathbf{s}^\prime) .$$
+    )EOF")
+      .def("seed", &AbstractSamplerDM::Seed, py::arg("base_seed"), R"EOF(
+      Seeds the random number generator used by the ``Sampler``.
+
+      Args:
+          base_seed: The base seed for the random number generator
+          used by the sampler. Each MPI node is guarantueed to be initialized
+          with a distinct seed.
+      )EOF")
+      .def("reset", &AbstractSamplerDM::Reset, py::arg("init_random") = false,
+           R"EOF(
+      Resets the state of the sampler, including the acceptance rate statistics
+      and optionally initializing at random the visible units being sampled.
+
+      Args:
+          init_random: If ``True`` the quantum numbers (visible units)
+          are initialized at random, otherwise their value is preserved.
+      )EOF")
+      .def("sweep", &AbstractSamplerDM::Sweep, R"EOF(
+      Performs a sampling sweep. Typically a single sweep
+      consists of an extensive number of local moves.
+      )EOF")
+      .def_property("visible", &AbstractSamplerDM::Visible,
+                    &AbstractSamplerDM::SetVisible,
+                    R"EOF(
+                      numpy.array: The quantum numbers being sampled,
+                       and distributed according to $$F(\Psi(v))$$ )EOF")
+      .def_property_readonly("acceptance", &AbstractSamplerDM::Acceptance, R"EOF(
+        numpy.array: The measured acceptance rate for the sampling.
+        In the case of rejection-free sampling this is always equal to 1.  )EOF")
+      .def_property_readonly("hilbert", &AbstractSamplerDM::GetHilbertShared,
+                             R"EOF(
+        netket.hilbert: The Hilbert space used for the sampling.  )EOF")
+      .def_property_readonly("machine", &AbstractSamplerDM::GetMachine, R"EOF(
+        netket.machine: The machine used for the sampling.  )EOF")
+      .def_property("machine_func", &AbstractSamplerDM::GetMachineFunc,
+                    &AbstractSamplerDM::SetMachineFunc,
+                    R"EOF(
+                          function(complex): The function to be used for sampling.
+                                       by default $$|\Psi(x)|^2$$ is sampled,
+                                       however in general $$F(\Psi(v))$$  )EOF");
 
   AddMetropolisLocal(subm);
   AddMetropolisLocalPt(subm);
@@ -110,6 +169,7 @@ void AddSamplerModule(py::module &m) {
   AddMetropolisHamiltonian(subm);
   AddMetropolisHamiltonianPt(subm);
   AddMetropolisExchange(subm);
+  AddMetropolisExchangeDM(subm);
   AddMetropolisExchangePt(subm);
   AddExactSampler(subm);
   AddCustomSampler(subm);

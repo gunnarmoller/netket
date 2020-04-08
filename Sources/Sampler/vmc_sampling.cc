@@ -2,6 +2,8 @@
 
 namespace netket {
 namespace vmc {
+    
+const Complex I_(0, 1);
 
 Result ComputeSamples(AbstractSampler &sampler, Index nsamples, Index ndiscard,
                       bool compute_logderivs) {
@@ -110,6 +112,8 @@ Stats Expectation(const Result &result, AbstractMachine &psi,
   return bin.AllStats();
 }
 
+
+
 Stats Variance(const Result &result, AbstractMachine &psi,
                const AbstractOperator &op) {
   VectorXcd locvals;
@@ -179,6 +183,149 @@ VectorXcd GradientOfVariance(const Result &result, AbstractMachine &psi,
   MeanOnNodes<>(grad);
   return grad;
 }
+
+// ----------------------------------------------------------------------------
+/** TTComment:
+ * The functions for density matrix
+ */
+
+/** TTComment:
+ * C1 local value used to derive the gradient of cost function
+ */
+Complex C1LocalValue(const AbstractOperator &op, AbstractDensityMatrix &rho,
+                     Eigen::Ref<const VectorXd> v, 
+                     Eigen::Ref<const VectorXd> gamma)
+{
+  int n_vis = rho.Nvisible();  
+  Eigen::Ref<const VectorXd> vr = v.head(n_vis);
+  Eigen::Ref<const VectorXd> vc = v.tail(n_vis);
+  
+  AbstractOperator::ConnectorsType tochanger;
+  AbstractOperator::ConnectorsType tochangec;
+  AbstractOperator::NewconfsType newconfr;
+  AbstractOperator::NewconfsType newconfc;
+  AbstractOperator::MelType melsr;
+  AbstractOperator::MelType melsc;
+  
+  op.FindConn(vr, melsr, tochanger, newconfr);
+  op.FindConn(vc, melsc, tochangec, newconfc);
+  
+  for (auto &el1 : tochangec)
+    for (auto &el2 : el1)
+      el2 += n_vis;
+  
+  auto logvaldiffsr = rho.LogValDiff(v, tochanger, newconfr);
+  auto logvaldiffsc = rho.LogValDiff(v, tochangec, newconfc);
+  
+  assert(melsr.size() == std::size_t(logvaldiffsr.size()));
+  assert(melsc.size() == std::size_t(logvaldiffsc.size()));
+  
+  Complex result = 0.0;
+  // Values from hamiltonian part
+  for (Index i = 0; i < logvaldiffsr.size(); ++i)
+  {
+    result += -I_ * melsr[i] * std::exp(-logvaldiffsr(i));
+  }
+  for (Index i = 0; i < logvaldiffsc.size(); ++i)
+  {
+    result += I_ * std::conj(melsc[i]) * std::exp(-logvaldiffsc(i));    
+  }
+  
+  decltype(logvaldiffsr) templogvaldiff;
+  AbstractOperator::NewconfsType tempnewconf;
+  AbstractOperator::ConnectorsType temptochange;
+  // Values from jump operator part (only for spin 1/2)
+  for (int j = 0; j < n_vis; ++j)
+  {
+    if (vc[j] == -1 && vr[j] == -1)
+    {
+      tempnewconf = {{1, 1}};
+      temptochange = {{j, j + n_vis}};
+      templogvaldiff = rho.LogValDiff(v, temptochange, tempnewconf);
+      result += gamma[j] / 2 * std::exp(-templogvaldiff(0));  
+    }
+    if (vr[j] == +1)
+    {
+      result -= gamma[j] / 2;  
+    }
+    if (vc[j] == +1)
+    {
+      result -= gamma[j] / 2;
+    }
+  }
+  
+  return result;
+}
+
+/** TTComment:
+ * C2 local value used to derive the gradient of cost function
+ */
+Complex C2LocalValue(const AbstractOperator &op, AbstractDensityMatrix &rho,
+                     Eigen::Ref<const VectorXd> v, 
+                     Eigen::Ref<const VectorXd> gamma)
+{
+  int n_vis = rho.Nvisible();  
+  Eigen::Ref<const VectorXd> vr = v.head(n_vis);
+  Eigen::Ref<const VectorXd> vc = v.tail(n_vis);
+  Eigen::VectorXd temp_v;
+  
+  AbstractOperator::ConnectorsType tochanger;
+  AbstractOperator::ConnectorsType tochangec;
+  AbstractOperator::NewconfsType newconfr;
+  AbstractOperator::NewconfsType newconfc;
+  AbstractOperator::MelType melsr;
+  AbstractOperator::MelType melsc;
+  
+  op.FindConn(vr, melsr, tochanger, newconfr);
+  op.FindConn(vc, melsc, tochangec, newconfc);
+  
+  for (auto &el1 : tochangec)
+    for (auto &el2 : el1)
+      el2 += n_vis;
+  
+  auto logvaldiffsr = rho.LogValDiff(v, tochanger, newconfr);
+  auto logvaldiffsc = rho.LogValDiff(v, tochangec, newconfc);
+  
+  assert(melsr.size() == std::size_t(logvaldiffsr.size()));
+  assert(melsc.size() == std::size_t(logvaldiffsc.size()));
+  
+  Complex result = 0.0;
+  // Values from hamiltonian part
+  for (Index i = 0; i < logvaldiffsr.size(); ++i)
+  {
+    result += -I_ * melsr[i] * std::exp(-logvaldiffsr(i));
+  }
+  for (Index i = 0; i < logvaldiffsc.size(); ++i)
+  {
+    result += I_ * std::conj(melsc[i]) * std::exp(-logvaldiffsc(i));    
+  }
+  
+  decltype(logvaldiffsr) templogvaldiff;
+  AbstractOperator::NewconfsType tempnewconf;
+  AbstractOperator::ConnectorsType temptochange;
+  // Values from jump operator part (only for spin 1/2)
+  for (int j = 0; j < n_vis; ++j)
+  {
+    if (vc[j] == -1 && vr[j] == -1)
+    {
+      tempnewconf = {{1, 1}};
+      temptochange = {{j, j + n_vis}};
+      templogvaldiff = rho.LogValDiff(v, temptochange, tempnewconf);
+      result += gamma[j] / 2 * std::exp(-templogvaldiff(0));  
+    }
+    if (vr[j] == +1)
+    {
+      result -= gamma[j] / 2;  
+    }
+    if (vc[j] == +1)
+    {
+      result -= gamma[j] / 2;
+    }
+  }
+  
+  return result;
+}
+
 
 }  // namespace vmc
 }  // namespace netket

@@ -16,6 +16,7 @@
 #define NETKET_VMC_SAMPLING_HPP
 
 #include "Machine/abstract_machine.hpp"
+#include "Machine/DensityMatrices/abstract_density_matrix.hpp"
 #include "Operator/abstract_operator.hpp"
 #include "Sampler/abstract_sampler.hpp"
 #include "Stats/binning.hpp"
@@ -138,7 +139,7 @@ Stats Expectation(const Result &result, AbstractMachine &psi,
                   const AbstractOperator &op, VectorXcd &locvals);
 
 /**
- * Computes the variance of an observable based on the given VMC data.
+ * Computes the variance of an observable based oMachinen the given VMC data.
  */
 Stats Variance(const Result &result, AbstractMachine &psi,
                const AbstractOperator &op);
@@ -175,6 +176,25 @@ VectorXcd Gradient(const Result &result, AbstractMachine &psi,
  */
 VectorXcd GradientOfVariance(const Result &result, AbstractMachine &psi,
                              const AbstractOperator &op);
+
+// ----------------------------------------------------------------------------
+/** TTComment:
+ * The functions for density matrix
+ */
+
+/** TTComment:
+ * C1 local value used to derive the gradient of cost function
+ */
+Complex C1LocalValue(const AbstractOperator &op, AbstractDensityMatrix &rho,
+                     Eigen::Ref<const VectorXd> v, 
+                     Eigen::Ref<const VectorXd> gamma);
+
+/** TTComment:
+ * C2 local value used to derive the gradient of cost function
+ */
+Complex C2LocalValue(const AbstractOperator &op, AbstractDensityMatrix &rho,
+                     Eigen::Ref<const VectorXd> v, 
+                     Eigen::Ref<const VectorXd> gamma);
 
 }  // namespace vmc
 }  // namespace netket
