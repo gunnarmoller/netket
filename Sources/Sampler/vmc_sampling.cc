@@ -225,7 +225,10 @@ Complex C1LocalValue(const AbstractOperator &op, AbstractDensityMatrix &rho,
   for (Index i = 0; i < logvaldiffsr.size(); ++i)
   {
     result += -I_ * melsr[i] * std::exp(-logvaldiffsr(i));
-    result += I_ * std::conj(melsc[i]) * std::exp(-logvaldiffsc(i));
+  }
+  for (Index i = 0; i < logvaldiffsc.size(); ++i)
+  {
+    result += I_ * std::conj(melsc[i]) * std::exp(-logvaldiffsc(i));    
   }
   
   decltype(logvaldiffsr) templogvaldiff;
@@ -264,6 +267,7 @@ Complex C2LocalValue(const AbstractOperator &op, AbstractDensityMatrix &rho,
   int n_vis = rho.Nvisible();  
   Eigen::Ref<const VectorXd> vr = v.head(n_vis);
   Eigen::Ref<const VectorXd> vc = v.tail(n_vis);
+  Eigen::VectorXd temp_v;
   
   AbstractOperator::ConnectorsType tochanger;
   AbstractOperator::ConnectorsType tochangec;
@@ -290,7 +294,10 @@ Complex C2LocalValue(const AbstractOperator &op, AbstractDensityMatrix &rho,
   for (Index i = 0; i < logvaldiffsr.size(); ++i)
   {
     result += -I_ * melsr[i] * std::exp(-logvaldiffsr(i));
-    result += I_ * std::conj(melsc[i]) * std::exp(-logvaldiffsc(i));
+  }
+  for (Index i = 0; i < logvaldiffsc.size(); ++i)
+  {
+    result += I_ * std::conj(melsc[i]) * std::exp(-logvaldiffsc(i));    
   }
   
   decltype(logvaldiffsr) templogvaldiff;
