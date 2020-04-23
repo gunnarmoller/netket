@@ -181,6 +181,7 @@ VectorXcd GradientOfVariance(const Result &result, AbstractMachine &psi,
 /** TTComment:
  * The functions for density matrix
  */
+using VectorType = Eigen::Matrix<Complex, Eigen::Dynamic, 1>;
 
 /** TTComment:
  * C1 local value used to derive the gradient of cost function
@@ -192,9 +193,23 @@ Complex C1LocalValue(const AbstractOperator &op, AbstractDensityMatrix &rho,
 /** TTComment:
  * C2 local value used to derive the gradient of cost function
  */
-Complex C2LocalValue(const AbstractOperator &op, AbstractDensityMatrix &rho,
+VectorType C2LocalValue(const AbstractOperator &op, AbstractDensityMatrix &rho,
                      Eigen::Ref<const VectorXd> v, 
                      Eigen::Ref<const VectorXd> gamma);
+
+/** TTComment:
+ * calculating gradient of cost function for density matrix
+ */
+VectorXcd GradientDM(const Result &result, AbstractDensityMatrix &rho,
+                     const AbstractOperator &op,
+                     Eigen::Ref<const VectorXd> gamma);
+
+/** TTComment:
+ * calculating expectation values for a given density matrix and 
+ * operator
+ */
+Complex ExpectationDM(const Result &result, AbstractDensityMatrix &rho,
+                      const AbstractOperator &op);
 
 }  // namespace vmc
 }  // namespace netket
