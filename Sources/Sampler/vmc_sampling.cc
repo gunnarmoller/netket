@@ -368,14 +368,14 @@ VectorXcd GradientDM(const Result &result, AbstractDensityMatrix &rho,
     
     for (Index i = 0; i < n_samples; ++i)
     {
-        locC1_value = C1LocalValue(op, rho, result.Sample(i), gamma)
-        locC2_value = C2LocalValue(op, rho, result.Sample(i), gamma)
-        c1_value += pow(abs(locC1_value), 2)
-        o_value += result.LogDerivs()
-        c2_value += conj(locC1_value) * locC2_value
+        locC1_value = C1LocalValue(op, rho, result.Sample(i), gamma);
+        locC2_value = C2LocalValue(op, rho, result.Sample(i), gamma);
+        c1_value += pow(abs(locC1_value), 2);
+        o_value += result.LogDerivs();
+        c2_value += conj(locC1_value) * locC2_value;
     }
     VectorType result = - c1_value * o_value / (n_samples * n_samples) + 
-                          c2_value / n_samples
+                          c2_value / n_samples;
     
     return 2*result.real()
 }
@@ -388,12 +388,20 @@ Complex ExpectationDM(const Result &result, AbstractDensityMatrix &rho,
                       const AbstractOperator &op)
 {
     int n_samples = result.NSamples();
+    int n_vis = rho.Nvisible();
     Complex result = 0.0;
+    VectorType v = VectorType::Zero(2 * n_vis);
+    VectorType vr = VectorType::Zero(n_vis);
+    VectorType vc = VectorType::Zero(n_vis);
     
     for (Index i = 0; i < n_samples; ++i)
     {
-        
+        v = result.Sample(i)
+        vr = v.head(n_vis);
+        vc = v.tail(n_vis);
+        result += op.FindAllMatrixElements(vr, vc) / rho.LogVal(v);        
     }
+    return result;
 }
 
 }  // namespace vmc
