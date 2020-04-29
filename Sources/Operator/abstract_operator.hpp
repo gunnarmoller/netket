@@ -143,18 +143,21 @@ class AbstractOperator {
    * @param vr Bra vector state 
    * @param vc Ket vector state
    */
-  Complex FindAllMatrixElements(Eigen::Ref<const VectorXd> &vr,
-                                Eigen::Ref<const VectorXd> &vc)
+  Complex FindAllMatrixElements(Eigen::Ref<const VectorXd> v) const
   {
+    int n_vis = GetHilbert().Size();
+    Eigen::Ref<const VectorXd> vr = v.head(n_vis);
+    Eigen::Ref<const VectorXd> vc = v.tail(n_vis);
     Complex result = 0.0;
-    VectorType v_temp = VectorType::Zero(GetHilbert().Size());
+    int h;
+    VectorType v_temp = VectorType::Zero(n_vis);
     ForEachConn(vc, [&](ConnectorRef conn) 
     {
       v_temp = vc;
       h = 0;
       for (auto &el : conn.tochange)
       {
-        v_temp[el] = conn.newconf[h]
+        v_temp[el] = conn.newconf[h];
         ++h;
       }
       if (v_temp == vr) {result += conn.mel;}
