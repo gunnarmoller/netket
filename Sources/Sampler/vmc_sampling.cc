@@ -192,7 +192,7 @@ VectorXcd GradientOfVariance(const Result &result, AbstractMachine &psi,
 /** TTComment:
  * C1 local value used to derive the gradient of cost function
  */
-Complex C1LocalValue(const AbstractOperator &op, AbstractDensityMatrix &rho,
+Complex C1LocalValue(const AbstractOperator &op, AbstractMachine &rho,
                      Eigen::Ref<const VectorXd> v, 
                      Eigen::Ref<const VectorXd> gamma)
 {
@@ -260,9 +260,9 @@ Complex C1LocalValue(const AbstractOperator &op, AbstractDensityMatrix &rho,
 /** TTComment:
  * C2 local value used to derive the gradient of cost function
  */
-VectorType C2LocalValue(const AbstractOperator &op, AbstractDensityMatrix &rho,
+VectorType C2LocalValue(const AbstractOperator &op, AbstractMachine &rho,
                      Eigen::Ref<const VectorXd> v, 
-                     Eigen::Ref<const VectorXd> gamma)
+                     const VectorXd gamma)
 {
   int n_vis = rho.Nvisible();  
   int n_par = rho.Npar();
@@ -352,9 +352,9 @@ VectorType C2LocalValue(const AbstractOperator &op, AbstractDensityMatrix &rho,
 /** TTComment:
  * calculating gradient of cost function for density matrix
  */
-VectorXcd GradientDM(const Result &result, AbstractDensityMatrix &rho,
+VectorXcd GradientDM(const Result &result, AbstractMachine &rho,
                      const AbstractOperator &op,
-                     Eigen::Ref<const VectorXd> gamma)
+                     const VectorXd gamma)
 {
     int n_par = rho.Npar();
     int n_samples = result.NSamples();
@@ -384,7 +384,7 @@ VectorXcd GradientDM(const Result &result, AbstractDensityMatrix &rho,
  * calculating expectation values for a given density matrix and 
  * operator
  */
-Complex ExpectationDM(const Result &result, AbstractDensityMatrix &rho,
+Complex ExpectationDM(const Result &result, AbstractMachine &rho,
                       const AbstractOperator &op)
 {
     int n_samples = result.NSamples();
