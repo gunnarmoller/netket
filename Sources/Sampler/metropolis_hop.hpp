@@ -72,7 +72,7 @@ class MetropolisHop : public AbstractSampler {
 
     // Always use odd sweep size to avoid possible ergodicity problems
     if (nv_ % 2 == 0) {
-      sweep_size_ = nv_ sampling generating local hoppings+ 1;
+      sweep_size_ = nv_; //sampling generating local hoppings+ 1;
     } else {
       sweep_size_ = nv_;
     }

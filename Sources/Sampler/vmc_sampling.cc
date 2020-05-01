@@ -192,7 +192,7 @@ VectorXcd GradientOfVariance(const Result &result, AbstractMachine &psi,
 /** TTComment:
  * C1 local value used to derive the gradient of cost function
  */
-Complex C1LocalValue(const AbstractOperator &op, AbstractDensityMatrix &rho,
+Complex C1LocalValue(const AbstractOperator &op, AbstractMachine &rho,
                      Eigen::Ref<const VectorXd> v, 
                      Eigen::Ref<const VectorXd> gamma)
 {
@@ -260,9 +260,9 @@ Complex C1LocalValue(const AbstractOperator &op, AbstractDensityMatrix &rho,
 /** TTComment:
  * C2 local value used to derive the gradient of cost function
  */
-VectorType C2LocalValue(const AbstractOperator &op, AbstractDensityMatrix &rho,
+VectorType C2LocalValue(const AbstractOperator &op, AbstractMachine &rho,
                      Eigen::Ref<const VectorXd> v, 
-                     Eigen::Ref<const VectorXd> gamma)
+                     const VectorXd gamma)
 {
   int n_vis = rho.Nvisible();  
   int n_par = rho.Npar();
@@ -352,9 +352,9 @@ VectorType C2LocalValue(const AbstractOperator &op, AbstractDensityMatrix &rho,
 /** TTComment:
  * calculating gradient of cost function for density matrix
  */
-VectorXcd GradientDM(const Result &result, AbstractDensityMatrix &rho,
+VectorXcd GradientDM(const Result &result, AbstractMachine &rho,
                      const AbstractOperator &op,
-                     Eigen::Ref<const VectorXd> gamma)
+                     const VectorXd gamma)
 {
     int n_par = rho.Npar();
     int n_samples = result.NSamples();
@@ -364,36 +364,38 @@ VectorXcd GradientDM(const Result &result, AbstractDensityMatrix &rho,
     
     Complex c1_value = 0.0;
     VectorType o_value = VectorType::Zero(n_par);
-    Complex c2_value = VectorType::Zero(n_par);
+    VectorType c2_value = VectorType::Zero(n_par);
     
     for (Index i = 0; i < n_samples; ++i)
     {
-        locC1_value = C1LocalValue(op, rho, result.Sample(i), gamma)
-        locC2_value = C2LocalValue(op, rho, result.Sample(i), gamma)
-        c1_value += pow(abs(locC1_value), 2)
-        o_value += result.LogDerivs()
-        c2_value += conj(locC1_value) * locC2_value
+        locC1_value = C1LocalValue(op, rho, result.Sample(i), gamma);
+        locC2_value = C2LocalValue(op, rho, result.Sample(i), gamma);
+        c1_value += pow(abs(locC1_value), 2);
+        o_value += result.LogDerivs()->col(i);
+        c2_value += conj(locC1_value) * locC2_value;
     }
-    VectorType result = - c1_value * o_value / (n_samples * n_samples) + 
-                          c2_value / n_samples
+    VectorType output = - c1_value * o_value / (n_samples * n_samples) + 
+                          c2_value / n_samples;
     
-    return 2*result.real()
+    return 2*output.real();
 }
 
 /** TTComment:
  * calculating expectation values for a given density matrix and 
  * operator
  */
-Complex ExpectationDM(const Result &result, AbstractDensityMatrix &rho,
+Complex ExpectationDM(const Result &result, AbstractMachine &rho,
                       const AbstractOperator &op)
 {
     int n_samples = result.NSamples();
-    Complex result = 0.0;
+    Complex output = 0.0;
     
     for (Index i = 0; i < n_samples; ++i)
     {
-        
+        output += op.FindAllMatrixElements(result.Sample(i)) 
+                              / std::exp(rho.LogVal(result.Sample(i)));        
     }
+    return output;
 }
 
 }  // namespace vmc

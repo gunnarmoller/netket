@@ -569,7 +569,7 @@ class NdmSpinPhase : public AbstractDensityMatrix {
         }
       }
 
-      RbmSpin::lncosh(thetasnew_r1_, lnthetasnew_r1_);ðσ; ̃σ;σ0; ̃σ0Þ
+      RbmSpin::lncosh(thetasnew_r1_, lnthetasnew_r1_); //ðσ; ̃σ;σ0; ̃σ0Þ
       RbmSpin::lncosh(thetasnew_r2_, lnthetasnew_r2_);
       RbmSpin::lncosh(thetasnew_c1_, lnthetasnew_c1_);
       RbmSpin::lncosh(thetasnew_c2_, lnthetasnew_c2_);

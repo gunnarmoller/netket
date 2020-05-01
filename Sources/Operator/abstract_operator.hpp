@@ -136,7 +136,36 @@ class AbstractOperator {
     }
     return result;
   }
-
+  
+  /** TTComent:
+   * Member function finding the matrix element of operator given vectors
+   * on right and on left.
+   * @param vr Bra vector state 
+   * @param vc Ket vector state
+   */
+  Complex FindAllMatrixElements(Eigen::Ref<const VectorXd> v) const
+  {
+    int n_vis = GetHilbert().Size();
+    Eigen::Ref<const VectorXd> vr = v.head(n_vis);
+    Eigen::Ref<const VectorXd> vc = v.tail(n_vis);
+    Complex result = 0.0;
+    int h;
+    VectorType v_temp = VectorType::Zero(n_vis);
+    ForEachConn(vc, [&](ConnectorRef conn) 
+    {
+      v_temp = vc;
+      h = 0;
+      for (auto &el : conn.tochange)
+      {
+        v_temp[el] = conn.newconf[h];
+        ++h;
+      }
+      if (v_temp == vr) {result += conn.mel;}
+    });
+    return result;
+  }
+  
+  
   Eigen::MatrixXcd ToDense() const {
     const auto &hilbert_index = GetHilbert().GetIndex();
     Eigen::MatrixXcd matrix;

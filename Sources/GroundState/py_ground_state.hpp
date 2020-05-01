@@ -18,6 +18,7 @@
 #include <pybind11/pybind11.h>
 #include "py_exact.hpp"
 #include "py_variational_montecarlo.hpp"
+#include "py_variational_montecarlo_DM.hpp"
 
 namespace py = pybind11;
 
@@ -25,6 +26,7 @@ namespace netket {
 
 void AddGroundStateModule(py::module &m) {
   AddVariationalMonteCarloModule(m);
+  //AddVariationalMonteCarloDMModule(m);
   AddExactModule(m);
 }
 

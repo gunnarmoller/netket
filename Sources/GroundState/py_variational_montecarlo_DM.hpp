@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef NETKET_PYVARIATIONALMONTECARLODM_HPP
-#define NETKET_PYVARIATIONALMONTECARLODM_HPP
+#ifndef NETKET_PYVARIATIONALMONTECARLO_HPP
+#define NETKET_PYVARIATIONALMONTECARLO_HPP
 
 #include <mpi.h>
 #include <pybind11/complex.h>
@@ -23,24 +23,24 @@
 #include <pybind11/stl_bind.h>
 #include <complex>
 #include <vector>
-#include "variational_montecarlo.hpp"
+#include "variational_montecarlo_DM.hpp"
 
 namespace py = pybind11;
 
 namespace netket {
 
-void AddVariationalMonteCarloModule(py::module &m) {
+void AddVariationalMonteCarloDMModule(py::module &m) {
   auto m_vmc = m.def_submodule("variational");
 
-  py::class_<VariationalMonteCarlo>(
-      m_vmc, "Vmc",
+  py::class_<VariationalMonteCarloDM>(
+      m_vmc, "VmcDM",
       R"EOF(Variational Monte Carlo schemes to learn the ground state using stochastic reconfiguration and gradient descent optimizers.)EOF")
       .def(py::init<const AbstractOperator &, AbstractSampler &,
-                    AbstractOptimizer &, int, int, int, const std::string &,
+                    AbstractOptimizer &, const VectorXd, int, int, int, const std::string &,
                     const std::string &, double, bool, bool>(),
            py::keep_alive<1, 2>(), py::keep_alive<1, 3>(),
            py::keep_alive<1, 4>(), py::arg("hamiltonian"), py::arg("sampler"),
-           py::arg("optimizer"), py::arg("n_samples"),
+           py::arg("optimizer"), py::arg("n_samples"), py::arg("gamma"),
            py::arg("discarded_samples") = -1,
            py::arg("discarded_samples_on_init") = 0,
            py::arg("target") = "energy", py::arg("method") = "Sr",
@@ -99,9 +99,9 @@ void AddVariationalMonteCarloModule(py::module &m) {
 
            )EOF")
       .def_property_readonly(
-          "machine", &VariationalMonteCarlo::GetMachine,
+          "machine", &VariationalMonteCarloDM::GetMachine,
           R"EOF(netket.machine.Machine: The machine used to express the wavefunction.)EOF")
-      .def("add_observable", &VariationalMonteCarlo::AddObservable,
+      .def("add_observable", &VariationalMonteCarloDM::AddObservable,
            py::keep_alive<1, 2>(), py::arg("ob"), py::arg("ob_name"), R"EOF(
            Add an observable quantity, that will be calculated at each
            iteration.
@@ -111,7 +111,7 @@ void AddVariationalMonteCarloModule(py::module &m) {
                ob_name: The name of the observable.
 
            )EOF")
-      .def("run", &VariationalMonteCarlo::Run, py::arg("output_prefix"),
+      .def("run", &VariationalMonteCarloDM::Run, py::arg("output_prefix"),
            py::arg("n_iter") = nonstd::nullopt, py::arg("step_size") = 1,
            py::arg("save_params_every") = 50, R"EOF(
            Optimize the Vmc wavefunction.
@@ -146,8 +146,8 @@ void AddVariationalMonteCarloModule(py::module &m) {
                ```
 
            )EOF")
-      .def("reset", &VariationalMonteCarlo::Reset)
-      .def("advance", &VariationalMonteCarlo::Advance, py::arg("steps") = 1,
+      .def("reset", &VariationalMonteCarloDM::Reset)
+      .def("advance", &VariationalMonteCarloDM::Advance, py::arg("steps") = 1,
            R"EOF(
            Perform one or several iteration steps of the VMC calculation. In each step,
            energy and gradient will be estimated via VMC and subsequently, the variational
@@ -159,7 +159,7 @@ void AddVariationalMonteCarloModule(py::module &m) {
            )EOF")
       .def(
           "get_observable_stats",
-          [](VariationalMonteCarlo &self) {
+          [](VariationalMonteCarloDM &self) {
             self.ComputeObservables();
             return self.GetObservableStats();
           },
@@ -167,7 +167,7 @@ void AddVariationalMonteCarloModule(py::module &m) {
         Calculate and return the value of the operators stored as observables.
 
         )EOF")
-      .def_property_readonly("vmc_data", &VariationalMonteCarlo::GetVmcData);
+      .def_property_readonly("vmc_data", &VariationalMonteCarloDM::GetVmcData);
 
   py::class_<vmc::Result>(m_vmc, "_VmcResult");
 

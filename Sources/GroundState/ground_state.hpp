@@ -16,5 +16,6 @@
 #define NETKET_GROUND_STATE_HPP
 
 #include "variational_montecarlo.hpp"
+#include "variational_montecarlo_DM.hpp"
 
 #endif
