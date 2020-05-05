@@ -18,7 +18,7 @@
 #include <pybind11/pybind11.h>
 #include "py_exact.hpp"
 #include "py_variational_montecarlo.hpp"
-#include "py_variational_montecarlo_DM.hpp"
+//#include "py_variational_montecarlo_DM.hpp"
 
 namespace py = pybind11;
 

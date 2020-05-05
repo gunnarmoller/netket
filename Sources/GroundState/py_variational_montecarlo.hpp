@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef NETKET_PYVARIATIONALMONTECARLODM_HPP
-#define NETKET_PYVARIATIONALMONTECARLODM_HPP
+#ifndef NETKET_PYVARIATIONALMONTECARLO_HPP
+#define NETKET_PYVARIATIONALMONTECARLO_HPP
 
 #include <mpi.h>
 #include <pybind11/complex.h>
