@@ -30,7 +30,7 @@ namespace py = pybind11;
 namespace netket {
 
 void AddVariationalMonteCarloDMModule(py::module &m) {
-  auto m_vmc = m.def_submodule("variational");
+  auto m_vmc = m.def_submodule("variationalDM");
 
   py::class_<VariationalMonteCarloDM>(
       m_vmc, "VmcDM",
