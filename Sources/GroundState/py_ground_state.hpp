@@ -26,7 +26,7 @@ namespace netket {
 
 void AddGroundStateModule(py::module &m) {
   AddVariationalMonteCarloModule(m);
-  AddVariationalMonteCarloDMModule(m);
+  //AddVariationalMonteCarloDMModule(m);
   AddExactModule(m);
 }
 
