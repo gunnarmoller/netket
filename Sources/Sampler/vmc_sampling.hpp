@@ -202,7 +202,7 @@ VectorType C2LocalValue(const AbstractOperator &op, AbstractMachine &rho,
  */
 VectorXcd GradientDM(const Result &result, AbstractMachine &rho,
                      const AbstractOperator &op,
-                     Eigen::Ref<const VectorXd> gamma);
+                     const VectorXd &gamma);
 
 /** TTComment:
  * calculating expectation values for a given density matrix and 

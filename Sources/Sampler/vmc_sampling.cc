@@ -354,7 +354,7 @@ VectorType C2LocalValue(const AbstractOperator &op, AbstractMachine &rho,
  */
 VectorXcd GradientDM(const Result &result, AbstractMachine &rho,
                      const AbstractOperator &op,
-                     const VectorXd gamma)
+                     const VectorXd &gamma)
 {
     int n_par = rho.Npar();
     int n_samples = result.NSamples();
