@@ -101,7 +101,7 @@ class VariationalMonteCarloDM {
  public:
   VariationalMonteCarloDM(const AbstractOperator &hamiltonian,
                         AbstractSampler &sampler, AbstractOptimizer &optimizer,
-                        const VectorXd gamma,
+                        const VectorXd &gamma,
                         int nsamples, int discarded_samples = -1,
                         int discarded_samples_on_init = 0,
                         const std::string &target = "energy",

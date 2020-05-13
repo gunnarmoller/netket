@@ -36,11 +36,11 @@ void AddVariationalMonteCarloDMModule(py::module &m) {
       m_vmc, "VmcDM",
       R"EOF(Variational Monte Carlo schemes to learn the ground state using stochastic reconfiguration and gradient descent optimizers.)EOF")
       .def(py::init<const AbstractOperator &, AbstractSampler &,
-                    AbstractOptimizer &, const VectorXd, int, int, int, const std::string &,
+                    AbstractOptimizer &, const VectorXd &, int, int, int, const std::string &,
                     const std::string &, double, bool, bool>(),
            py::keep_alive<1, 2>(), py::keep_alive<1, 3>(),
            py::keep_alive<1, 4>(), py::arg("hamiltonian"), py::arg("sampler"),
-           py::arg("optimizer"), py::arg("n_samples"), py::arg("gamma"),
+           py::arg("optimizer"), py::arg("gamma"), py::arg("n_samples"),
            py::arg("discarded_samples") = -1,
            py::arg("discarded_samples_on_init") = 0,
            py::arg("target") = "energy", py::arg("method") = "Sr",
