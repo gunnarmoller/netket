@@ -24,7 +24,7 @@ set(NETKET_PYTHON_VERSION "" CACHE STRING "Python version to use for compiling m
 if(NOT CMAKE_BUILD_TYPE)
   message(STATUS "[NetKet] CMAKE_BUILD_TYPE not specified, setting it to "
                  "Release. Use `-DCMAKE_BUILD_TYPE=...` to overwrite.")
-  set(CMAKE_BUILD_TYPE Release)
+  set(CMAKE_BUILD_TYPE Debug)
 endif()
 
 
